@@ -4,6 +4,8 @@ import urllib3
 import validators
 import re
 import netaddr
+import getpass
+from ssh_client import sshClient
 
 class netMRIManager(object):
 
@@ -43,6 +45,16 @@ class netMRIManager(object):
             if_name = self.ifQuery(if_id=if_lookup)
             return(print("MAC: %s\nDevice: %s\nInterface: %s" %
                         (user_input, device_name, if_name)))
+            user_choice = input("Login to device? (y/n) \n> ")
+            while True:
+                if user_choice.lower() == "y":
+                    username = input("username> ")
+                    password = getpass.getpass(prompt="password> ")
+                    x = ssh_Client.sshClient()
+                    x.client_login(hostname=device_name,
+                                   username=username,
+                                   password=password)
+                elif
         else:
             return(print("Not a valid MAC!"))
     
