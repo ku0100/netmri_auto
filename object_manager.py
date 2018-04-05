@@ -1,13 +1,12 @@
 #! /usr/bin/env python3.6
 import requests
-import urllib3
 import validators
-import re
 import netaddr
 import getpass
 from ssh_client import sshClient
 
-class netMRIManager(object):
+
+class NetMRIManager(object):
 
     def __init__(self):
 
@@ -18,7 +17,7 @@ class netMRIManager(object):
         self.username = "username"
         self.password = "password"
 
-    def macQuery(self, user_input):
+    def mac_query(self, user_input):
         # If valid mac address (needs to be either ':' or '-' delimited)
         if macCheck(user_input):
             user_input = netaddr.EUI(str(user_input))
@@ -41,10 +40,10 @@ class netMRIManager(object):
 
                 device_lookup = mac["InfraDeviceID"]
                 if_lookup = mac["InterfaceID"]
-            device_name = self.deviceQuery(device_id=device_lookup)
-            if_name = self.ifQuery(if_id=if_lookup)
-            return(print("MAC: %s\nDevice: %s\nInterface: %s" %
-                        (user_input, device_name, if_name)))
+            device_name = self.device_query(device_id=device_lookup)
+            if_name = self.if_query(if_id=if_lookup)
+            print("MAC: %s\nDevice: %s\nInterface: %s" %
+                  (user_input, device_name, if_name))
             user_choice = input("Login to device? (y/n) \n> ")
             while True:
                 if user_choice.lower() == "y":
@@ -54,11 +53,14 @@ class netMRIManager(object):
                     x.client_login(hostname=device_name,
                                    username=username,
                                    password=password)
-                elif
+                elif user_choice.lower() == "n":
+                    return False
+                else:
+                    continue
         else:
-            return(print("Not a valid MAC!"))
+            return print("Not a valid MAC!")
     
-    def deviceQuery(self, device_id):
+    def device_query(self, device_id):
         query = "devices"
         req_params = {"DeviceID":device_id, "limit":1}
         device_search = requests.get(self.wapi_url + query + "/find?",
@@ -71,28 +73,25 @@ class netMRIManager(object):
             device_name = device["DeviceName"]
         return(device_name)
 
-    def ifQuery(self, if_id):
+    def if_query(self, if_id):
         query = "interfaces"
         req_params = {"InterfaceID": if_id, "limit": 1}
         if_search = requests.get(self.wapi_url + query + "/find?",
-                                        data=req_params,
-                                        auth=(self.username,
-                                              self.password),
-                                        verify=False)
+                                 data=req_params,
+                                 auth=(self.username,
+                                       self.password),
+                                 verify=False)
         if_found = if_search.json()
         for interface in if_found[query]:
             if_name = interface["ifName"]
         return(if_name)
 
-def macCheck(address):
+
+def mac_check(address):
     if validators.mac_address(str(address)):
         return True
     else:
         return False
-
-if __name__ == "__main__":
-    address = input("> ")
-    macQuery(input)
     
-# suppress irrelevant messages to enduser
+# suppress irrelevant messages to end user
 requests.packages.urllib3.disable_warnings()
