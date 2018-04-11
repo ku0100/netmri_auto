@@ -19,7 +19,7 @@ class NetMRIManager(object):
 
     def mac_query(self, user_input):
         # If valid mac address (needs to be either ':' or '-' delimited)
-        if macCheck(user_input):
+        if mac_check(user_input):
             user_input = netaddr.EUI(str(user_input))
             # formats mac correctly for netmri API query
             user_input.dialect = netaddr.mac_unix_expanded
